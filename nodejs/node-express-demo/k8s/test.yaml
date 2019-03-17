@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  selector:
+    matchLabels:
+      app: deployment
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: deployment
+    spec:
+      containers:
+      - name: job-id-20
+        image: barathece91/node-express-demo
+        ports:
+        - name: http-port
+          containerPort: 8080
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "0"
+
+---
+
+#Kubernetes service with matching selector to app with targetPort of 8080 and type LoadBalancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: service
+spec:
+  ports:
+    - protocol: TCP
+      targetPort: 8080
+      port: 8080
+  selector:
+    app: deployment
+  type: LoadBalancer

@@ -1,0 +1,38 @@
+
+# deployment config for  node express app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-express-demo
+spec:
+  selector:
+    matchLabels:
+      app: node-express-demo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: node-express-demo
+    spec:
+      containers:
+      - name: node-express-demo
+        image: barathece91/node-express-demo
+        ports:
+        - containerPort: 8080
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: node-express-demo
+spec:
+  selector:
+    app: node-express-demo
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: 30782
+
+
