@@ -18,14 +18,21 @@ volumes: [
     def shortGitCommit = "${gitCommit[0..10]}"
     def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
  
+    
+    stage('Build') {
+      container('maven') {
+        sh "mvn package"
+      }
+    }
+
     stage('Test') {
       try {
-        container('gradle') {
+        container('maven') {
           sh """
             pwd
             echo "GIT_BRANCH=${gitBranch}" >> /etc/environment
             echo "GIT_COMMIT=${gitCommit}" >> /etc/environment
-            gradle test
+            maven test
             """
         }
       }
@@ -34,11 +41,7 @@ volumes: [
         throw(exc)
       }
     }
-    stage('Build') {
-      container('gradle') {
-        sh "gradle build"
-      }
-    }
+
     stage('Create Docker images') {
       container('docker') {
         withCredentials([[$class: 'UsernamePasswordMultiBinding',
